@@ -100,14 +100,23 @@ def DocCorpus(query, nbArticle) :
     # Sauvegarde du corpus dans un fichier binaire
     corpus.save('corpus.pkl')      
 
+DocCorpus("orcas", 20)
 corpuscharger = Corpus("TestCorpus")
-c = corpuscharger.load('Version2/corpus.pkl')  
+c = corpuscharger.load('corpus.pkl')  
 
 #fonction concorde
-print(c.concorde("paris", 25)) 
+print(c.concorde("animal", 25)) 
 
 #fonction construire_vocabulaire
 print(c.construire_vocabulaire())
 
 # #fonction freq_vocabulaire
 print(c.freq_vocabulaire())
+
+print(c.construire_vocab())
+
+print(c.mat_TF())
+# print(c.update_vocab())
+
+
+

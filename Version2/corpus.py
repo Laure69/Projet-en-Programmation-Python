@@ -3,6 +3,8 @@ from document import *
 import pickle
 import re
 import pandas as pd
+import scipy
+import numpy as np
 
 # Fonction décoratrice pour créer un singleton
 def singleton(cls):
@@ -27,6 +29,8 @@ class Corpus :
         self.naut = 0
         self.texte_intégral = ""
         self.vocabulaire = set()
+        self.vocab = {}
+ 
     
     # Ajout d'un document au corpus
     def add(self, doc):
@@ -105,22 +109,39 @@ class Corpus :
 
         concordance_df = pd.DataFrame(concordance_data)
         return concordance_df
+    
+    def nettoyer_texte(self, texte) :
+        texte = str(texte).lower()
+        texte = texte.replace('\n', ' ')
+        texte = re.sub(r'[^a-z àáâäèéêëìíîïòóôöùúûüç]', '', texte)
+        #texte = re.sub(r'[^\w\s]', '', texte)
+        return texte
         
+
     def construire_vocabulaire(self):
         if not self.texte_intégral:
             self.texte_intégral = self.concatenate()
 
-        vocabulaire_set = set()
-
         for doc in self.id2doc.values():
-            texte_doc_nettoye = nettoyer_texte(doc.texte)
+            texte_doc_nettoye = self.nettoyer_texte(doc.texte)
             # print(texte_doc_nettoye)
             mots = texte_doc_nettoye.split()
-            vocabulaire_set.update(mots)
+            self.vocabulaire.update(mots)
 
-        vocabulaire_dict = {mot: indice for indice, mot in enumerate(vocabulaire_set)}
+        vocabulaire_dict = {mot: indice for indice, mot in enumerate(self.vocabulaire)}
     
         return vocabulaire_dict
+
+    def construire_vocab(self):
+        if not self.texte_intégral:
+            self.texte_intégral = self.concatenate()
+        mots = self.texte_intégral.split()
+        self.vocab = {mot: {'id': i, 'occurrences': 0} for i, mot in enumerate(sorted(set(mots)))}
+
+        for mot in mots:
+            self.vocab[mot]['occurrences'] += 1 
+        return self.vocab
+
     
     def freq_vocabulaire(self) :
         if not self.texte_intégral:
@@ -138,15 +159,38 @@ class Corpus :
             'Mot': list(occurrences.keys()),
             'Nombre Occurrences': [item['term_frequency'] for item in occurrences.values()],
             'Nombre Documents': [item['document_frequency'] for item in occurrences.values()]
-        })
-
+            })
         return occurrences_df
+    
+    def mat_TF(self):
+        matrice = scipy.sparse.csr_matrix((self.ndoc + 1, len(self.vocabulaire)), dtype=np.intc)
+        for i, document in self.id2doc.items():
+            texte_doc_nettoye = self.nettoyer_texte(document.texte)
+            mots = texte_doc_nettoye.split()
+            mots_non_trouves = set()
+            for mot in mots:
+                if mot not in self.vocabulaire:
+                    print(f'Mot non trouvé dans le vocabulaire : {mot}')
+                    mots_non_trouves.add(mot)
+                else:
+                    j = list(self.vocabulaire).index(mot)
+                    matrice[i, j] += 1
+            if mots_non_trouves:
+                print(f'Mots non trouvés dans le vocabulaire : {mots_non_trouves}')
+        return matrice
+    
+    # def update_vocab(self):
+    #     matrice_TF = self.mat_TF()
+    #     for mot, info in self.vocab.items():
+    #         indice_mot = info['id']
+    #         documents_contenant = (matrice_TF[:, indice_mot] > 0).sum()
+    #         self.vocab[mot]['documents_contenant'] = documents_contenant
 
-def nettoyer_texte(texte) :
-    texte = texte.lower()
-    texte = texte.replace('\n', ' ')
-    texte = re.sub(r'[^a-z àáâäèéêëìíîïòóôöùúûüç]', '', texte)
-    #texte = re.sub(r'[^\w\s]', '', texte)
+    #     return self.vocab
 
-    return texte
+    
+
+
+
+
 
