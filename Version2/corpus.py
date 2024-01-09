@@ -1,6 +1,6 @@
 from author import *
 from document import *
-from sklearn.feature_extraction.text import TfidfVectorizer
+# from sklearn.feature_extraction.text import TfidfVectorizer
 import pickle
 import re
 import pandas as pd
@@ -31,8 +31,7 @@ class Corpus :
         self.texte_intégral = ""
         self.vocabulaire = set()
         self.vocab = {}
- 
-    
+
     # Ajout d'un document au corpus
     def add(self, doc):
         if doc.auteur not in self.aut2id:
@@ -115,9 +114,8 @@ class Corpus :
         texte = str(texte).lower()
         texte = texte.replace('\n', ' ')
         texte = re.sub(r'[^a-z àáâäèéêëìíîïòóôöùúûüç]', '', texte)
-        #texte = re.sub(r'[^\w\s]', '', texte)
+
         return texte
-        
 
     def construire_vocabulaire(self):
         if not self.texte_intégral:
@@ -136,13 +134,13 @@ class Corpus :
     # def construire_vocab(self):
     #     if not self.texte_intégral:
     #         self.texte_intégral = self.concatenate()
+            
     #     mots = self.texte_intégral.split()
     #     self.vocab = {mot: {'id': i, 'occurrences': 0} for i, mot in enumerate(sorted(set(mots)))}
 
     #     for mot in mots:
     #         self.vocab[mot]['occurrences'] += 1 
     #     return self.vocab
-
     
     def freq_vocabulaire(self) :
         if not self.texte_intégral:
@@ -180,16 +178,7 @@ class Corpus :
                 print(f'Mots non trouvés dans le vocabulaire : {mots_non_trouves}')
         return matrice
     
-    # def update_vocab(self):
-    #     matrice_TF = self.mat_TF()
-    #     for mot, info in self.vocab.items():
-    #         indice_mot = info['id']
-    #         documents_contenant = (matrice_TF[:, indice_mot] > 0).sum()
-    #         self.vocab[mot]['documents_contenant'] = documents_contenant
-
-    #     return self.vocab
-
-    def construire_vocab(self):
+    def constrruire_vocab(self):
         matrice_TF = self.mat_TF()
         self.vocab = {mot: {'id': i, 'Nombre Total Occurrences': 0, 'Nombre Total Documents': 0} for i, mot in enumerate(self.vocabulaire)}
 
@@ -210,14 +199,7 @@ class Corpus :
                 print(f'Mots non trouvés dans le vocabulaire : {mots_non_trouves}')
 
         return self.vocab
-
-
-    # def mat_tfIdf(self):
-    #     vectorizer = TfidfVectorizer()
-    #     for i, document in self.id2doc.items():
-    #         texte_doc_nettoye = self.nettoyer_texte(document.texte)
-    #         mots = texte_doc_nettoye.split()
-
+    
     def mat_TFxIDF(self):
         mat_TF = self.mat_TF()
         nb_docs_contenant_terme = np.sum(mat_TF > 0, axis=0)
@@ -264,12 +246,5 @@ class Corpus :
             print(f"Date: {doc.date}")
             print(f"Source: {doc.type}")
             print(f"Contenu: {doc.texte}")
+            print(f"URL: {doc.url}")
             print("=" * 50)  # Ajoute une ligne de séparation pour une meilleure lisibilité
-        
-
-        
-
-
-
-
-

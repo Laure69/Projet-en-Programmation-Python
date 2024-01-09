@@ -9,7 +9,7 @@ import datetime
 def DocCorpus(query, nbArticle) :
     # Connexion à l'API Reddit
     reddit = praw.Reddit(client_id='BPhj4dO4S48SLnwoyR0BWA', client_secret='GtW2Sp9qyO8NuQBs51KW6T24UJntSg', user_agent='TD3 Python')
-    subr = reddit.subreddit('france')
+    subr = reddit.subreddit(query)
 
     # Récupération des 100 premiers posts les plus populaires de la subreddit
     hot_post = subr.hot(limit=nbArticle)
@@ -98,33 +98,36 @@ def DocCorpus(query, nbArticle) :
         corpus.add(doc)
 
     # Sauvegarde du corpus dans un fichier binaire
-    corpus.save('corpus.pkl')  
+    corpus.save('Version2/'+query+'.pkl')      
 
+DocCorpus("computer", 10)
 
-
-DocCorpus("france", 20)
-corpuscharger = Corpus("TestCorpus")
-c = corpuscharger.load('corpus.pkl')  
+# corpuscharger = Corpus("TestCorpus")
+# c = corpuscharger.load('Version2/corpus.pkl')  
 
 #fonction concorde
-print(c.concorde("animal", 25)) 
+#print(c.concorde("france", 25)) 
 
-#fonction construire_vocabulaire
-print(c.construire_vocabulaire())
+#fonction nettoyer_texte
+# exemple_document = c.id2doc[3]
+# print("Texte original du corpus :\n", exemple_document.texte)
+# texte_nettoye = c.nettoyer_texte(exemple_document.texte)
+# print("\nTexte nettoyé du corpus :\n", texte_nettoye)
+
+# #fonction construire_vocabulaire
+# print(c.construire_vocabulaire())
+
+# #fonction construire_vocab
+# print(c.construire_vocab())
 
 # #fonction freq_vocabulaire
-print(c.freq_vocabulaire())
-
-print(c.construire_vocab())
+# print(c.freq_vocabulaire())
 
 # print(c.mat_TF())
+# print(c.update_vocab())
 
-print(c.mat_TFxIDF())
-print()
+# print(c.mat_TFxIDF())
 
-
-print(c.recherche("destinations voyage tourisme j'adore le vin"))
-res_recherche = c.recherche("destinations voyage tourisme j'adore le vin")
-c.afficher(res_recherche)
-
-
+# print(c.recherche("amour sante"))
+# res_recherche = c.recherche("amour sante")
+# c.afficher(res_recherche)

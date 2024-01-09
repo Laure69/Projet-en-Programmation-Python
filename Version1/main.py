@@ -9,7 +9,7 @@ import datetime
 def DocCorpus(query, nbArticle) :
     # Connexion à l'API Reddit
     reddit = praw.Reddit(client_id='BPhj4dO4S48SLnwoyR0BWA', client_secret='GtW2Sp9qyO8NuQBs51KW6T24UJntSg', user_agent='TD3 Python')
-    subr = reddit.subreddit('france')
+    subr = reddit.subreddit(query)
 
     # Récupération des 100 premiers posts les plus populaires de la subreddit
     hot_post = subr.hot(limit=nbArticle)
@@ -98,4 +98,6 @@ def DocCorpus(query, nbArticle) :
         corpus.add(doc)
 
     # Sauvegarde du corpus dans un fichier binaire
-    corpus.save('corpus.pkl')                        
+    corpus.save('Version1/corpus.pkl')             
+
+# DocCorpus("paris", 2)           
