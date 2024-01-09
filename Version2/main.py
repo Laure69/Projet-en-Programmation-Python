@@ -98,9 +98,11 @@ def DocCorpus(query, nbArticle) :
         corpus.add(doc)
 
     # Sauvegarde du corpus dans un fichier binaire
-    corpus.save('corpus.pkl')      
+    corpus.save('corpus.pkl')  
 
-DocCorpus("orcas", 20)
+
+
+DocCorpus("france", 20)
 corpuscharger = Corpus("TestCorpus")
 c = corpuscharger.load('corpus.pkl')  
 
@@ -115,8 +117,14 @@ print(c.freq_vocabulaire())
 
 print(c.construire_vocab())
 
-print(c.mat_TF())
-# print(c.update_vocab())
+# print(c.mat_TF())
 
+print(c.mat_TFxIDF())
+print()
+
+
+print(c.recherche("destinations voyage tourisme j'adore le vin"))
+res_recherche = c.recherche("destinations voyage tourisme j'adore le vin")
+c.afficher(res_recherche)
 
 

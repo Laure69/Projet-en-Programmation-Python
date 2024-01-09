@@ -1,5 +1,6 @@
 from author import *
 from document import *
+from sklearn.feature_extraction.text import TfidfVectorizer
 import pickle
 import re
 import pandas as pd
@@ -132,15 +133,15 @@ class Corpus :
     
         return vocabulaire_dict
 
-    def construire_vocab(self):
-        if not self.texte_intégral:
-            self.texte_intégral = self.concatenate()
-        mots = self.texte_intégral.split()
-        self.vocab = {mot: {'id': i, 'occurrences': 0} for i, mot in enumerate(sorted(set(mots)))}
+    # def construire_vocab(self):
+    #     if not self.texte_intégral:
+    #         self.texte_intégral = self.concatenate()
+    #     mots = self.texte_intégral.split()
+    #     self.vocab = {mot: {'id': i, 'occurrences': 0} for i, mot in enumerate(sorted(set(mots)))}
 
-        for mot in mots:
-            self.vocab[mot]['occurrences'] += 1 
-        return self.vocab
+    #     for mot in mots:
+    #         self.vocab[mot]['occurrences'] += 1 
+    #     return self.vocab
 
     
     def freq_vocabulaire(self) :
@@ -188,7 +189,79 @@ class Corpus :
 
     #     return self.vocab
 
+    def construire_vocab(self):
+        matrice_TF = self.mat_TF()
+        self.vocab = {mot: {'id': i, 'Nombre Total Occurrences': 0, 'Nombre Total Documents': 0} for i, mot in enumerate(self.vocabulaire)}
+
+        for i, document in self.id2doc.items():
+            mots = self.nettoyer_texte(document.texte).split()
+            mots_non_trouves = set()
+
+            for mot in mots:
+                if mot in self.vocabulaire:
+                    j = list(self.vocabulaire).index(mot)
+                    self.vocab[mot]['Nombre Total Occurrences'] += matrice_TF[i, j]
+                    if matrice_TF[i, j] > 0:
+                        self.vocab[mot]['Nombre Total Documents'] += 1
+                else:
+                    mots_non_trouves.add(mot)
+
+            if mots_non_trouves:
+                print(f'Mots non trouvés dans le vocabulaire : {mots_non_trouves}')
+
+        return self.vocab
+
+
+    # def mat_tfIdf(self):
+    #     vectorizer = TfidfVectorizer()
+    #     for i, document in self.id2doc.items():
+    #         texte_doc_nettoye = self.nettoyer_texte(document.texte)
+    #         mots = texte_doc_nettoye.split()
+
+    def mat_TFxIDF(self):
+        mat_TF = self.mat_TF()
+        nb_docs_contenant_terme = np.sum(mat_TF > 0, axis=0)
+        nb_docs_total = self.ndoc + 1
+
+        idf = np.log(nb_docs_total / (nb_docs_contenant_terme + 1))
+
+        mat_TFxIDF = mat_TF.multiply(idf)
+
+        return mat_TFxIDF
     
+    def recherche(self, query):
+        
+        #recuperer mots clés
+        req_nettoye = self.nettoyer_texte(query)
+        mots_cle = req_nettoye.split()
+    
+        #vectoriser les mots clés
+        vecteur_req =[1 if mot in mots_cle else 0 for mot in self.vocabulaire]
+
+        #calculer similarité
+        res = {}
+        for i, document in self.id2doc.items():
+            mots = self.nettoyer_texte(document.texte).split()
+            vecteur_doc = [1 if mot in mots else 0 for mot in self.vocabulaire]
+            similarite = np.dot(vecteur_req, vecteur_doc)
+            res[i] = similarite
+        
+        #trier score
+        res_sorted = dict(sorted(res.items(), key=lambda item: item[1], reverse=True))
+        return res_sorted
+    
+    def afficher(self, res):
+        for resultat in res.items():
+            index_doc = resultat[0]
+            doc = self.id2doc[index_doc]
+            print(f"Document: {doc.titre}")
+            print(f"Date: {doc.date}")
+            print(f"Source: {doc.type}")
+            print(f"Contenu: {doc.texte}")
+            print("=" * 50)  # Ajoute une ligne de séparation pour une meilleure lisibilité
+        
+
+        
 
 
 
