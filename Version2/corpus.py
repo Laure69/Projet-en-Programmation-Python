@@ -240,12 +240,18 @@ class Corpus :
 
         #calculer similarité
         res = {}
+        mat_tfidf = self.mat_TFxIDF()
+        liste_vocabulaire = list(self.vocabulaire)
+        mat_tfidf_csr = mat_tfidf.tocsr()
         for i, document in self.id2doc.items():
             mots = self.nettoyer_texte(document.texte).split()
-            vecteur_doc = [1 if mot in mots else 0 for mot in self.vocabulaire]
+            indices_mot = [liste_vocabulaire.index(mot) for mot in mots if mot in liste_vocabulaire]
+            valeurs_tfidf = [mat_tfidf_csr[i, indice] for indice in indices_mot]
+            vecteur_doc = [0] * len(liste_vocabulaire)
+            for indice_mot, valeur_tfidf in zip(indices_mot, valeurs_tfidf):
+                vecteur_doc[indice_mot] = valeur_tfidf
             similarite = np.dot(vecteur_req, vecteur_doc)
             res[i] = similarite
-        
         #trier score
         res_sorted = dict(sorted(res.items(), key=lambda item: item[1], reverse=True))
         return res_sorted
