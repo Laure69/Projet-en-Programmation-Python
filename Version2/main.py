@@ -98,33 +98,33 @@ def DocCorpus(query, nbArticle) :
         corpus.add(doc)
 
     # Sauvegarde du corpus dans un fichier binaire
-    corpus.save('Version2/'+query+'.pkl')      
-
-DocCorpus("computer", 10)
+    corpus.save('Version2/'+query+'.pkl') 
+    
+DocCorpus("orcas", 10)
 
 # corpuscharger = Corpus("TestCorpus")
-# c = corpuscharger.load('Version2/corpus.pkl')  
+# c = corpuscharger.load('./Version2/corpus.pkl')  
 
-#fonction concorde
-#print(c.concorde("france", 25)) 
+# #fonction concorde
+# print(c.concorde("france", 25)) 
 
-#fonction nettoyer_texte
-# exemple_document = c.id2doc[3]
-# print("Texte original du corpus :\n", exemple_document.texte)
-# texte_nettoye = c.nettoyer_texte(exemple_document.texte)
-# print("\nTexte nettoyé du corpus :\n", texte_nettoye)
+# #fonction nettoyer_texte
+# # exemple_document = c.id2doc[3]
+# # print("Texte original du corpus :\n", exemple_document.texte)
+# # texte_nettoye = c.nettoyer_texte(exemple_document.texte)
+# # print("\nTexte nettoyé du corpus :\n", texte_nettoye)
 
-# #fonction construire_vocabulaire
+# # #fonction construire_vocabulaire
 # print(c.construire_vocabulaire())
 
-# #fonction construire_vocab
+# # #fonction construire_vocab
 # print(c.construire_vocab())
 
-# #fonction freq_vocabulaire
+# # #fonction freq_vocabulaire
 # print(c.freq_vocabulaire())
 
-# print(c.mat_TF())
-# print(c.update_vocab())
+# # print(c.mat_TF())
+# # print(c.update_vocab())
 
 # print(c.mat_TFxIDF())
 

@@ -6,6 +6,8 @@ import re
 import pandas as pd
 import scipy
 import numpy as np
+import os
+# from IPython.display import HTML
 
 # Fonction décoratrice pour créer un singleton
 def singleton(cls):
@@ -66,6 +68,10 @@ class Corpus :
     
     # Sauvegarde le corpus dans un fichier binaire
     def save(self, file_path):
+        directory = os.path.dirname(file_path)
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
         with open(file_path, 'wb') as f:
             pickle.dump(self, f)
 
@@ -178,7 +184,7 @@ class Corpus :
                 print(f'Mots non trouvés dans le vocabulaire : {mots_non_trouves}')
         return matrice
     
-    def constrruire_vocab(self):
+    def construire_vocab(self):
         matrice_TF = self.mat_TF()
         self.vocab = {mot: {'id': i, 'Nombre Total Occurrences': 0, 'Nombre Total Documents': 0} for i, mot in enumerate(self.vocabulaire)}
 
@@ -238,13 +244,28 @@ class Corpus :
         res_sorted = dict(sorted(res.items(), key=lambda item: item[1], reverse=True))
         return res_sorted
     
+    # def afficher(self, res):
+    #     for resultat in res.items():
+    #         index_doc = resultat[0]
+    #         doc = self.id2doc[index_doc]
+    #         print(f"Document: {doc.titre}")
+    #         print(f"Date: {doc.date}")
+    #         print(f"Source: {doc.type}")
+    #         print(f"Contenu: {doc.texte}")
+    #         print(f"URL: {doc.url}")
+    #         print("=" * 50)  # Ajoute une ligne de séparation pour une meilleure lisibilité
+
+
+
     def afficher(self, res):
+        html_output = ""
         for resultat in res.items():
             index_doc = resultat[0]
             doc = self.id2doc[index_doc]
-            print(f"Document: {doc.titre}")
-            print(f"Date: {doc.date}")
-            print(f"Source: {doc.type}")
-            print(f"Contenu: {doc.texte}")
-            print(f"URL: {doc.url}")
-            print("=" * 50)  # Ajoute une ligne de séparation pour une meilleure lisibilité
+            html_output += f"<p><b>Document:</b> {doc.titre}</p>"
+            html_output += f"<p><b>Date:</b> {doc.date}</p>"
+            html_output += f"<p><b>Source:</b> {doc.type}</p>"
+            html_output += f"<p><b>Contenu:</b> {doc.texte}</p>"
+            html_output += "=" * 50 + "<br><br>"
+        return html_output  
+
