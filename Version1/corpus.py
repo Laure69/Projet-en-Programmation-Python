@@ -3,14 +3,14 @@ from document import *
 import pickle
 
 # Fonction décoratrice pour créer un singleton
-def singleton(cls):
-    instance =[None]
-    def wrapper(*args,**kwargs):
-        nonlocal instance
-        if instance[0] is None:
-            instance[0] = cls(*args,**kwargs)
-        return instance[0]
-    return wrapper
+# def singleton(cls):
+#     instance =[None]
+#     def wrapper(*args,**kwargs):
+#         nonlocal instance
+#         if instance[0] is None:
+#             instance[0] = cls(*args,**kwargs)
+#         return instance[0]
+#     return wrapper
 
 # =============== La classe Corpus ===============
 #@singleton

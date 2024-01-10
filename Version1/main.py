@@ -98,6 +98,6 @@ def DocCorpus(query, nbArticle) :
         corpus.add(doc)
 
     # Sauvegarde du corpus dans un fichier binaire
-    corpus.save('Version1/corpus.pkl')             
+    corpus.save(query+'.pkl')             
 
-# DocCorpus("paris", 2)           
+DocCorpus("paris", 20)           
