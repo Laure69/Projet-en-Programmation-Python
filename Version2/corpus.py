@@ -10,14 +10,14 @@ import os
 # from IPython.display import HTML
 
 # Fonction décoratrice pour créer un singleton
-def singleton(cls):
-    instance =[None]
-    def wrapper(*args,**kwargs):
-        nonlocal instance
-        if instance[0] is None:
-            instance[0] = cls(*args,**kwargs)
-        return instance[0]
-    return wrapper
+# def singleton(cls):
+#     instance =[None]
+#     def wrapper(*args,**kwargs):
+#         nonlocal instance
+#         if instance[0] is None:
+#             instance[0] = cls(*args,**kwargs)
+#         return instance[0]
+#     return wrapper
 
 # =============== La classe Corpus ===============
 #@singleton
@@ -81,6 +81,7 @@ class Corpus :
         with open(file_path, 'rb') as f:
             return pickle.load(f) 
     
+    # Utilisation de la fonction join pour concaténer le texte de tous les documents
     def concatenate(self):
         return " ".join([doc.texte for doc in self.id2doc.values()])
 
@@ -88,11 +89,15 @@ class Corpus :
         if not self.texte_intégral :
             self.texte_intégral = self.concatenate()
         
+        # Utilisation de re.finditer pour trouver toutes les occurrences du mot-clé dans le texte intégral
         matches = re.finditer(keyword, self.texte_intégral, re.IGNORECASE)
+       
+        # Création d'une liste de passages en utilisant set pour éliminer les doublons
         passages = list(set(match.group() for match in matches))
 
         return passages
     
+    # Fonction recherchant et extrayant les concordances d'un mot-clé dans le texte intégral du corpus avec un contexte spécifié
     def concorde(self, keyword, context_size=20) :
         if not self.texte_intégral :
             self.texte_intégral = self.concatenate()
@@ -116,6 +121,7 @@ class Corpus :
         concordance_df = pd.DataFrame(concordance_data)
         return concordance_df
     
+    # Fonction qui convertit le texte en minuscules, remplace les sauts de ligne par des espaces, et élimine les caractères non alphabétiques
     def nettoyer_texte(self, texte) :
         texte = str(texte).lower()
         texte = texte.replace('\n', ' ')
@@ -123,6 +129,7 @@ class Corpus :
 
         return texte
 
+    # Construit un dictionnaire de vocabulaire à partir du texte intégral du corpus en nettoyant les documents et en extrayant les mots
     def construire_vocabulaire(self):
         if not self.texte_intégral:
             self.texte_intégral = self.concatenate()
@@ -137,6 +144,7 @@ class Corpus :
     
         return vocabulaire_dict
     
+    # Calcule la fréquence d'occurrence et le nombre de documents pour chaque mot dans le texte intégral du corpus
     def freq_vocabulaire(self) :
         if not self.texte_intégral:
             self.texte_intégral = self.concatenate()
@@ -156,6 +164,7 @@ class Corpus :
             })
         return occurrences_df
     
+    # Fonction qui construit et retourne une matrice de termes-fréquence (TF) à partir du texte intégral du corpus, en utilisant une représentation sparse (CSR)
     def mat_TF(self):
         matrice = scipy.sparse.csr_matrix((self.ndoc + 1, len(self.vocabulaire)), dtype=np.intc)
         for i, document in self.id2doc.items():
@@ -173,6 +182,7 @@ class Corpus :
                 print(f'Mots non trouvés dans le vocabulaire : {mots_non_trouves}')
         return matrice
     
+    # Construit et retourne un dictionnaire de vocabulaire étendu à partir de la matrice de termes-fréquence (TF) du corpus
     def construire_vocab(self):
         matrice_TF = self.mat_TF()
         self.vocab = {mot: {'id': i, 'Nombre Total Occurrences': 0, 'Nombre Total Documents': 0} for i, mot in enumerate(self.vocabulaire)}
@@ -195,6 +205,7 @@ class Corpus :
     
         return self.vocab
     
+    # Calcule et retourne une matrice de termes-fréquence * inverse du document (TFxIDF) en utilisant la matrice de termes-fréquence (TF) du corpus
     def mat_TFxIDF(self):
         mat_TF = self.mat_TF()
         nb_docs_contenant_terme = np.sum(mat_TF > 0, axis=0)
@@ -206,16 +217,17 @@ class Corpus :
 
         return mat_TFxIDF
     
+    # Recherche et classe les documents par similarité avec la requête
     def recherche(self, query):
         
-        #recuperer mots clés
+        # Récupérer les mots clés
         req_nettoye = self.nettoyer_texte(query)
         mots_cle = req_nettoye.split()
         
-        #vectoriser les mots clés
+        # Vectoriser les mots clés
         vecteur_req =[1 if mot in mots_cle else 0 for mot in self.vocabulaire]
 
-        #calculer similarité
+        # Calculer la similarité
         res = {}
         mat_tfidf = self.mat_TFxIDF()
         liste_vocabulaire = list(self.vocabulaire)
@@ -229,10 +241,12 @@ class Corpus :
                 vecteur_doc[indice_mot] = valeur_tfidf
             similarite = np.dot(vecteur_req, vecteur_doc)
             res[i] = similarite
-        #trier score
+        
+        # Trier les scores de similarité
         res_sorted = dict(sorted(res.items(), key=lambda item: item[1], reverse=True))
         return res_sorted
     
+    # Génère une représentation HTML des résultats de recherche avec les détails de chaque document
     def afficher(self, res):
         html_output = ""
         for resultat in res.items():
