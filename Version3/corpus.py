@@ -67,17 +67,24 @@ class Corpus :
     def load(cls, file_path):
         with open(file_path, 'rb') as f:
             return pickle.load(f) 
-     # Concatene l'ensemble des textes des documents du corpus
+        
+    # Utilisation de la fonction join pour concaténer le texte de tous les documents
     def concatenate(self):
         return " ".join([doc.texte for doc in self.id2doc.values()])
 
     def search(self, keyword):
         if not self.texte_intégral :
             self.texte_intégral = self.concatenate()
+
+        # Utilisation de re.finditer pour trouver toutes les occurrences du mot-clé dans le texte intégral
         matches = re.finditer(keyword, self.texte_intégral, re.IGNORECASE)
+
+        # Création d'une liste de passages en utilisant set pour éliminer les doublons
         passages = list(set(match.group() for match in matches))
+
         return passages
     
+    # Fonction recherchant et extrayant les concordances d'un mot-clé dans le texte intégral du corpus avec un contexte spécifié
     def concorde(self, keyword, context_size=20) :
         if not self.texte_intégral :
             self.texte_intégral = self.concatenate()
@@ -96,6 +103,7 @@ class Corpus :
         concordance_df = pd.DataFrame(concordance_data)
         return concordance_df
     
+    # Fonction qui convertit le texte en minuscules, remplace les sauts de ligne par des espaces, et élimine les caractères non alphabétiques
     def nettoyer_texte(self, texte) :
         texte = str(texte).lower()
         texte = texte.replace('\n', ' ')
@@ -113,6 +121,7 @@ class Corpus :
         vocabulaire_dict = {mot: indice for indice, mot in enumerate(self.vocabulaire)}
         return vocabulaire_dict
     
+    # Calcule la fréquence d'occurrence et le nombre de documents pour chaque mot dans le texte intégral du corpus
     def freq_vocabulaire(self) :
         if not self.texte_intégral:
             self.texte_intégral = self.concatenate()
@@ -129,6 +138,7 @@ class Corpus :
             })
         return occurrences_df
     
+    # Fonction qui construit et retourne une matrice de termes-fréquence (TF) à partir du texte intégral du corpus, en utilisant une représentation sparse (CSR)
     def mat_TF(self):
         matrice = scipy.sparse.csr_matrix((self.ndoc + 1, len(self.vocabulaire)), dtype=np.intc)
         for i, document in self.id2doc.items():
@@ -146,6 +156,7 @@ class Corpus :
                 print(f'Mots non trouvés dans le vocabulaire : {mots_non_trouves}')
         return matrice
     
+    # Construit et retourne un dictionnaire de vocabulaire étendu à partir de la matrice de termes-fréquence (TF) du corpus
     def construire_vocab(self):
         matrice_TF = self.mat_TF()
         self.vocab = {mot: {'id': i, 'Nombre Total Occurrences': 0, 'Nombre Total Documents': 0} for i, mot in enumerate(self.vocabulaire)}
@@ -164,6 +175,7 @@ class Corpus :
                 print(f'Mots non trouvés dans le vocabulaire : {mots_non_trouves}')
         return self.vocab
     
+    # Calcule et retourne une matrice de termes-fréquence * inverse du document (TFxIDF) en utilisant la matrice de termes-fréquence (TF) du corpus
     def mat_TFxIDF(self):
         mat_TF = self.mat_TF()
         nb_docs_contenant_terme = np.sum(mat_TF > 0, axis=0)
