@@ -136,17 +136,6 @@ class Corpus :
         vocabulaire_dict = {mot: indice for indice, mot in enumerate(self.vocabulaire)}
     
         return vocabulaire_dict
-
-    # def construire_vocab(self):
-    #     if not self.texte_intégral:
-    #         self.texte_intégral = self.concatenate()
-            
-    #     mots = self.texte_intégral.split()
-    #     self.vocab = {mot: {'id': i, 'occurrences': 0} for i, mot in enumerate(sorted(set(mots)))}
-
-    #     for mot in mots:
-    #         self.vocab[mot]['occurrences'] += 1 
-    #     return self.vocab
     
     def freq_vocabulaire(self) :
         if not self.texte_intégral:
@@ -203,7 +192,7 @@ class Corpus :
 
             if mots_non_trouves:
                 print(f'Mots non trouvés dans le vocabulaire : {mots_non_trouves}')
-
+    
         return self.vocab
     
     def mat_TFxIDF(self):
@@ -222,7 +211,7 @@ class Corpus :
         #recuperer mots clés
         req_nettoye = self.nettoyer_texte(query)
         mots_cle = req_nettoye.split()
-    
+        
         #vectoriser les mots clés
         vecteur_req =[1 if mot in mots_cle else 0 for mot in self.vocabulaire]
 
@@ -244,19 +233,6 @@ class Corpus :
         res_sorted = dict(sorted(res.items(), key=lambda item: item[1], reverse=True))
         return res_sorted
     
-    # def afficher(self, res):
-    #     for resultat in res.items():
-    #         index_doc = resultat[0]
-    #         doc = self.id2doc[index_doc]
-    #         print(f"Document: {doc.titre}")
-    #         print(f"Date: {doc.date}")
-    #         print(f"Source: {doc.type}")
-    #         print(f"Contenu: {doc.texte}")
-    #         print(f"URL: {doc.url}")
-    #         print("=" * 50)  # Ajoute une ligne de séparation pour une meilleure lisibilité
-
-
-
     def afficher(self, res):
         html_output = ""
         for resultat in res.items():
